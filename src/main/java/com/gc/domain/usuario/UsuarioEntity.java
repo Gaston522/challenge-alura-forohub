@@ -1,5 +1,8 @@
-package com.gc.domain;
+package com.gc.domain.usuario;
 
+import com.gc.domain.respuestas.RespuestasEntity;
+import com.gc.domain.topico.TopicoActualizarDTO;
+import com.gc.domain.topico.TopicoEntity;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -16,6 +19,8 @@ public class UsuarioEntity {
     private String curso;
     @OneToMany(mappedBy = "usuario")
     private List<TopicoEntity> topicos;
+    @OneToMany(mappedBy = "usuario")
+    private List<RespuestasEntity> respuestas;
 
     public UsuarioEntity() {
     }
@@ -25,6 +30,7 @@ public class UsuarioEntity {
         this.clave = usuarioDTO.clave();
         this.curso = usuarioDTO.curso();
         this.topicos = usuarioDTO.topicos();
+        this.respuestas = usuarioDTO.respuestas();
     }
 
     public Long getId() {
@@ -69,5 +75,23 @@ public class UsuarioEntity {
 
     public void agregarTopico(TopicoEntity t){
         this.topicos.add(t);
+    }
+
+    public List<RespuestasEntity> getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(List<RespuestasEntity> respuestas) {
+        this.respuestas = respuestas;
+    }
+
+    public void agregarRespuesta(RespuestasEntity r){
+        this.respuestas.add(r);
+    }
+
+    public void actualizar(UsuarioActualizarDTO actualizarDTO){
+        if(actualizarDTO.nombre() != null) this.setNombre(actualizarDTO.nombre());
+        if(actualizarDTO.clave() != null) this.setClave(actualizarDTO.clave());
+        if(actualizarDTO.curso() != null) this.setCurso(actualizarDTO.curso());
     }
 }

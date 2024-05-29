@@ -1,8 +1,10 @@
-package com.gc.domain;
+package com.gc.domain.topico;
 
+import com.gc.domain.respuestas.RespuestasEntity;
+import com.gc.domain.usuario.UsuarioEntity;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "topico")
@@ -17,16 +19,18 @@ public class TopicoEntity {
     private String estatus;
     @ManyToOne
     private UsuarioEntity usuario;
+    @OneToMany(mappedBy = "topico")
+    private List<RespuestasEntity> respuestas;
 
     public TopicoEntity() {
     }
 
-    public TopicoEntity(RegistroTopicoDTO rtDto) {
-        this.titulo = rtDto.titulo();
-        this.mensaje = rtDto.mensaje();
-        this.fecha = rtDto.fecha();
-        this.estatus = rtDto.estatus();
-        this.usuario = rtDto.autor();
+    public TopicoEntity(TopicoDTO tDto) {
+        this.titulo = tDto.titulo();
+        this.mensaje = tDto.mensaje();
+        this.fecha = tDto.fecha();
+        this.estatus = tDto.estatus();
+        this.usuario = tDto.usuario();
     }
 
     public Long getId() {
@@ -75,5 +79,23 @@ public class TopicoEntity {
 
     public void setUsuario(UsuarioEntity usuario) {
         this.usuario = usuario;
+    }
+
+    public List<RespuestasEntity> getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(List<RespuestasEntity> respuestas) {
+        this.respuestas = respuestas;
+    }
+
+    public void actualizar(TopicoActualizarDTO topicoActualizarDTO){
+        if(topicoActualizarDTO.titulo() != null) this.setTitulo(topicoActualizarDTO.titulo());
+        if(topicoActualizarDTO.mensaje() != null) this.setMensaje(topicoActualizarDTO.mensaje());
+        if(topicoActualizarDTO.estatus() != null) this.setEstatus(topicoActualizarDTO.estatus());
+    }
+
+    public void agregarRespuesta(RespuestasEntity r){
+        this.respuestas.add(r);
     }
 }

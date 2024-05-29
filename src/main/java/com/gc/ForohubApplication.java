@@ -10,10 +10,7 @@ public class ForohubApplication{
 
 	public static void main(String[] args) {
 
-		ConfigurableApplicationContext context = SpringApplication.run(ForohubApplication.class, args);
-
-		Servicio s = context.getBean(Servicio.class);
-		s.guardar();
+		SpringApplication.run(ForohubApplication.class, args);
 	}
 
 }

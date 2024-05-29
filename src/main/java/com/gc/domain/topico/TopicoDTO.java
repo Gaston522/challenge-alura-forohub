@@ -1,13 +1,12 @@
-package com.gc.domain;
+package com.gc.domain.topico;
 
+import com.gc.domain.respuestas.RespuestasEntity;
+import com.gc.domain.usuario.UsuarioEntity;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDate;
 import java.util.List;
 
-public record RegistroTopicoDTO(
-
+public record TopicoDTO(
         @NotBlank
         String titulo,
         @NotBlank
@@ -17,6 +16,7 @@ public record RegistroTopicoDTO(
         @NotBlank
         String estatus,
         @NotBlank
-        UsuarioEntity autor
-        ) {
+        UsuarioEntity usuario,
+        List<RespuestasEntity> respuestas
+) {
 }

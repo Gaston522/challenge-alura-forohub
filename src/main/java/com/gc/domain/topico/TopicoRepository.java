@@ -1,4 +1,4 @@
-package com.gc.domain;
+package com.gc.domain.topico;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
