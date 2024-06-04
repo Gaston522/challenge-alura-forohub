@@ -6,6 +6,7 @@ import com.gc.domain.topico.TopicoEntity;
 import com.gc.domain.topico.TopicoRepository;
 import com.gc.domain.usuario.UsuarioEntity;
 import com.gc.domain.usuario.UsuarioRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/foro")
+@SecurityRequirement(name = "bearer-key")
 public class BorrarController {
 
     @Autowired
@@ -31,7 +33,7 @@ public class BorrarController {
     @Autowired
     private RespuestaRepository respuestaRepository;
 
-    @DeleteMapping("/usuario/{id}/delete")
+    @DeleteMapping("/usuario-{id}-delete")
     @Transactional
     public ResponseEntity<String> eliminarUsuario(@PathVariable Long id){
 
@@ -49,7 +51,7 @@ public class BorrarController {
         return new ResponseEntity<>("El usuario no fue encontrado", HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/topico/{id}/delete")
+    @DeleteMapping("/topico-{id}-delete")
     @Transactional
     public ResponseEntity<String> eliminarTopico(@PathVariable Long id){
         Optional<TopicoEntity> optionalTopico = topicoRepository.findById(id);
@@ -62,10 +64,10 @@ public class BorrarController {
             return new ResponseEntity<>("El topico fue eliminado correctamente", HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("El topico no fue encontrado", HttpStatus.OK);
+        return new ResponseEntity<>("El topico no fue encontrado", HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/respuesta/{id}/delete")
+    @DeleteMapping("/respuesta-{id}-delete")
     @Transactional
     public ResponseEntity<String> eliminarRespuesta(@PathVariable Long id){
 
@@ -78,6 +80,6 @@ public class BorrarController {
             return new ResponseEntity<>("La respuesta fue eliminada correctamente", HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("La respuesta no fue encontrada", HttpStatus.OK);
+        return new ResponseEntity<>("La respuesta no fue encontrada", HttpStatus.NOT_FOUND);
     }
 }

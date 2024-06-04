@@ -12,6 +12,7 @@ import com.gc.domain.usuario.UsuarioDTO;
 import com.gc.domain.usuario.UsuarioEntity;
 import com.gc.domain.usuario.UsuarioListarDTO;
 import com.gc.domain.usuario.UsuarioRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/foro")
+@SecurityRequirement(name = "bearer-key")
 public class ListarController {
 
     @Autowired
@@ -39,7 +41,7 @@ public class ListarController {
 
     private UsuarioEntity usuarioEntity;
 
-    @GetMapping("/usuario/listado")
+    @GetMapping("/usuario-listado")
     public ResponseEntity<List<UsuarioListarDTO>> listarUsuarios(){
         List<UsuarioListarDTO> usuarioListarDTO = usuarioRepository.findAll()
                 .stream().map(u -> new UsuarioListarDTO(u.getNombre()
@@ -49,22 +51,24 @@ public class ListarController {
         return ResponseEntity.ok(usuarioListarDTO);
     }
 
-    @GetMapping("/usuario/{id}")
+    @GetMapping("/usuario-{id}")
     public ResponseEntity<UsuarioListarDTO> mostrarUsuarios(@PathVariable Long id){
 
         Optional<UsuarioEntity> optionalUsuario = usuarioRepository.findById(id);
 
+        if (optionalUsuario.isPresent()) {
             UsuarioEntity u = optionalUsuario.get();
             UsuarioListarDTO usuarioListarDTO = new UsuarioListarDTO(u.getNombre(), u.getClave()
-                                            , u.getCurso(), u.getTopicos().size()
-                                            , u.getRespuestas().size());
+                    , u.getCurso(), u.getTopicos().size()
+                    , u.getRespuestas().size());
 
-            Optional<UsuarioListarDTO> optionalUsuarioListar = Optional.of(usuarioListarDTO);
+            return ResponseEntity.ok(usuarioListarDTO);
+        }
 
-            return ResponseEntity.of(optionalUsuarioListar);
+        return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/topico/listado")
+    @GetMapping("/topico-listado")
     public ResponseEntity<List<TopicoListadoDTO>> listarTopicos(){
 
         List<TopicoEntity> topicos = topicoRepository.findAll();
@@ -89,44 +93,73 @@ public class ListarController {
         return ResponseEntity.ok(topicoListadoDTO);
     }
 
-    @GetMapping("/topico/{id}")
+    @GetMapping("/topico-{id}")
     public ResponseEntity<TopicoListadoDTO> mostrarTopico(@PathVariable Long id){
 
         Optional<TopicoEntity> optionalTopico = topicoRepository.findById(id);
 
-        List<RespuestasEntity> respuestasEntities = optionalTopico.get().getRespuestas();
+        if (optionalTopico.isPresent()) {
+            List<RespuestasEntity> respuestasEntities = optionalTopico.get().getRespuestas();
 
-        List<RespuestaListadoDTO> respuestaListadoDTO = respuestasEntities.stream()
-                .map(RespuestaListadoDTO::new).collect(Collectors.toList());
+            List<RespuestaListadoDTO> respuestaListadoDTO = respuestasEntities.stream()
+                    .map(RespuestaListadoDTO::new).collect(Collectors.toList());
 
-        Optional<TopicoListadoDTO> optionalListado = optionalTopico.map(t -> new TopicoListadoDTO(t.getTitulo()
-                , t.getMensaje(), t.getFecha()
-                , t.getEstatus(), t.getUsuario().getNombre()
-                , respuestaListadoDTO));
+            TopicoListadoDTO topicoListadoDTO = new TopicoListadoDTO(optionalTopico.get().getTitulo()
+                    , optionalTopico.get().getMensaje(), optionalTopico.get().getFecha()
+                    , optionalTopico.get().getEstatus(), optionalTopico.get().getUsuario().getNombre()
+                    , respuestaListadoDTO);
 
-        return ResponseEntity.of(optionalListado);
+            return ResponseEntity.ok(topicoListadoDTO);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/respuestas/listado")
-    public ResponseEntity<List<RespuestaListadoDTO>> listarRespuestas(){
+    @GetMapping("/usuario-{id}-respuestas-listado")
+    public ResponseEntity<List<RespuestaListadoDTO>> listarRespuestasPorUsuario(@PathVariable Long id){
 
-        List<RespuestasEntity> respuestasEntity = respuestaRepository.findAll();
+        Optional<UsuarioEntity> usuario = usuarioRepository.findById(id);
 
-        List<RespuestaListadoDTO> respuestaListado = respuestasEntity.stream().map(r -> new RespuestaListadoDTO(r.getTitulo()
-                                                    , r.getRespuesta(), r.getFecha(), r.getUsuario().getNombre()
-                                                    , r.getTopico().getTitulo())).collect(Collectors.toList());
+        if (usuario.isPresent()) {
+            List<RespuestaListadoDTO> respuestaListado = usuario.get().getRespuestas().stream().map(r -> new RespuestaListadoDTO(r.getTitulo()
+                    , r.getRespuesta(), r.getFecha(), r.getUsuario().getNombre()
+                    , r.getTopico().getTitulo())).collect(Collectors.toList());
 
-        return ResponseEntity.ok(respuestaListado);
+            return ResponseEntity.ok(respuestaListado);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/respuestas/{id}")
+    @GetMapping("/topico-{id}-respuestas-listado")
+    public ResponseEntity<List<RespuestaListadoDTO>> listarRespuestasPorTopico(@PathVariable Long id){
+
+        Optional<TopicoEntity> topico = topicoRepository.findById(id);
+
+        if (topico.isPresent()) {
+            List<RespuestaListadoDTO> respuestaListado = topico.get().getRespuestas().stream().map(r -> new RespuestaListadoDTO(r.getTitulo()
+                    , r.getRespuesta(), r.getFecha(), r.getUsuario().getNombre()
+                    , r.getTopico().getTitulo())).collect(Collectors.toList());
+
+            return ResponseEntity.ok(respuestaListado);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/respuestas-{id}")
     public ResponseEntity<RespuestaListadoDTO> mostrarRespuesta(@PathVariable Long id){
 
         Optional<RespuestasEntity> optionalRespuesta = respuestaRepository.findById(id);
 
-        Optional<RespuestaListadoDTO> optionalRespuesaListado = optionalRespuesta.map(r -> new RespuestaListadoDTO(r.getTitulo()
-                                , r.getRespuesta(), r.getFecha(), r.getUsuario().getNombre(), r.getTopico().getTitulo()));
+        if (optionalRespuesta.isPresent()) {
+            RespuestaListadoDTO respuestaListado = new RespuestaListadoDTO(optionalRespuesta.get().getTitulo()
+                    , optionalRespuesta.get().getRespuesta(), optionalRespuesta.get().getFecha()
+                    , optionalRespuesta.get().getUsuario().getNombre(), optionalRespuesta.get().getTopico().getTitulo());
 
-        return ResponseEntity.of(optionalRespuesaListado);
+            return ResponseEntity.ok(respuestaListado);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

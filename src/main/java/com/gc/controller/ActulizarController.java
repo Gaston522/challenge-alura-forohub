@@ -11,9 +11,11 @@ import com.gc.domain.topico.TopicoRepository;
 import com.gc.domain.usuario.UsuarioActualizarDTO;
 import com.gc.domain.usuario.UsuarioEntity;
 import com.gc.domain.usuario.UsuarioRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/foro")
+@SecurityRequirement(name = "bearer-key")
 public class ActulizarController {
 
     @Autowired
@@ -35,7 +38,7 @@ public class ActulizarController {
     @Autowired
     private RespuestaRepository respuestaRepository;
 
-    @PutMapping("/usuario/{id}/actualizar")
+    @PutMapping("/usuario-{id}-actualizar")
     @Transactional
     public ResponseEntity<String> actualizarUsuario(@PathVariable Long id,
                                                     @RequestBody UsuarioActualizarDTO actualizarDTO){
@@ -47,15 +50,19 @@ public class ActulizarController {
             UsuarioEntity usuario = optionalUsuario.get();
             usuario.actualizar(actualizarDTO);
 
+            var hashpass = BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt());
+
+            usuario.setClave(hashpass);
+
             usuarioRepository.save(usuario);
 
             return new ResponseEntity<>("El usuario se actualizo correctamente", HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("El usuario no se encontro", HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>("El usuario no se encontro", HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/topico/{id}/actualizar")
+    @PutMapping("/topico-{id}-actualizar")
     @Transactional
     public ResponseEntity<String> actualizarTopico(@PathVariable Long id,
                                                              @RequestBody TopicoActualizarDTO topicoActualizarDTO){
@@ -76,10 +83,10 @@ public class ActulizarController {
             return new ResponseEntity<>("El topico se actualizo correctamente", HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("El topico no se encontro", HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>("El topico no se encontro", HttpStatus.NOT_FOUND);
     }
 
-    @PutMapping("/respuestas/{id}/actualizar")
+    @PutMapping("/respuestas-{id}-actualizar")
     @Transactional
     public ResponseEntity<String> actualizarRespuesta(@PathVariable Long id,
                                                                 @RequestBody RespuestasActualizarDTO respuestasActualizarDTO){
@@ -99,6 +106,6 @@ public class ActulizarController {
             return new ResponseEntity<>("La respuesta se actualizo correctamente", HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("La respuesta no se encontro", HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>("La respuesta no se encontro", HttpStatus.NOT_FOUND);
     }
 }

@@ -4,12 +4,16 @@ import com.gc.domain.respuestas.RespuestasEntity;
 import com.gc.domain.topico.TopicoActualizarDTO;
 import com.gc.domain.topico.TopicoEntity;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "usuario")
-public class UsuarioEntity {
+public class UsuarioEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -93,5 +97,40 @@ public class UsuarioEntity {
         if(actualizarDTO.nombre() != null) this.setNombre(actualizarDTO.nombre());
         if(actualizarDTO.clave() != null) this.setClave(actualizarDTO.clave());
         if(actualizarDTO.curso() != null) this.setCurso(actualizarDTO.curso());
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return clave;
+    }
+
+    @Override
+    public String getUsername() {
+        return nombre;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
