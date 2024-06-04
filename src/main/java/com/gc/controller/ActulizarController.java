@@ -1,111 +1,108 @@
 package com.gc.controller;
 
-import com.gc.domain.respuestas.RespuestaListadoDTO;
-import com.gc.domain.respuestas.RespuestaRepository;
-import com.gc.domain.respuestas.RespuestasActualizarDTO;
-import com.gc.domain.respuestas.RespuestasEntity;
-import com.gc.domain.topico.TopicoActualizarDTO;
-import com.gc.domain.topico.TopicoEntity;
-import com.gc.domain.topico.TopicoListadoDTO;
-import com.gc.domain.topico.TopicoRepository;
-import com.gc.domain.usuario.UsuarioActualizarDTO;
-import com.gc.domain.usuario.UsuarioEntity;
-import com.gc.domain.usuario.UsuarioRepository;
+import com.gc.domain.respuestas.*;
+import com.gc.domain.topico.*;
+import com.gc.domain.usuario.*;
+import com.gc.infra.service.ObtenerUsuario;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/foro")
 @SecurityRequirement(name = "bearer-key")
+@Tag(name = "4. Actualizar", description = "actualizar usuario, topico y/o respuesta")
 public class ActulizarController {
 
-    @Autowired
     private TopicoRepository topicoRepository;
 
-    @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @Autowired
     private RespuestaRepository respuestaRepository;
 
-    @PutMapping("/usuario-{id}-actualizar")
+    private ObtenerUsuario obtenerUsuario;
+
+    @Autowired
+    public ActulizarController(RespuestaRepository respuestaRepository,
+                               UsuarioRepository usuarioRepository,
+                               TopicoRepository topicoRepository,
+                               ObtenerUsuario obtenerUsuario) {
+
+        this.respuestaRepository = respuestaRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.topicoRepository = topicoRepository;
+        this.obtenerUsuario = obtenerUsuario;
+
+    }
+
+    @PutMapping("/usuario-actualizar")
     @Transactional
-    public ResponseEntity<String> actualizarUsuario(@PathVariable Long id,
-                                                    @RequestBody UsuarioActualizarDTO actualizarDTO){
+    public ResponseEntity<String> actualizarUsuario(@RequestBody UsuarioActualizarDTO actualizarDTO) {
 
-        Optional<UsuarioEntity> optionalUsuario = usuarioRepository.findById(id);
 
-        if (optionalUsuario.isPresent()) {
+        UsuarioEntity usuario = this.obtenerUsuario.obtenerSub();
+        usuario.actualizar(actualizarDTO);
 
-            UsuarioEntity usuario = optionalUsuario.get();
-            usuario.actualizar(actualizarDTO);
+        var hashpass = BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt());
 
-            var hashpass = BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt());
+        usuario.setClave(hashpass);
 
-            usuario.setClave(hashpass);
+        this.usuarioRepository.save(usuario);
 
-            usuarioRepository.save(usuario);
+        return new ResponseEntity<>("El usuario se actualizo correctamente", HttpStatus.OK);
 
-            return new ResponseEntity<>("El usuario se actualizo correctamente", HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("El usuario no se encontro", HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/topico-{id}-actualizar")
     @Transactional
-    public ResponseEntity<String> actualizarTopico(@PathVariable Long id,
-                                                             @RequestBody TopicoActualizarDTO topicoActualizarDTO){
-        Optional<TopicoEntity> optionalTopico = topicoRepository.findById(id);
+    public ResponseEntity<String> actualizarTopico(@PathVariable Long id, @RequestBody TopicoActualizarDTO topicoActualizarDTO) {
 
-        if (optionalTopico.isPresent()) {
+        TopicoEntity topico = this.obtenerUsuario.obtenerTopico(id);
 
-            TopicoEntity topicoEntity = optionalTopico.get();
-            topicoEntity.actualizar(topicoActualizarDTO);
-
-            LocalDate localDate = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-            topicoEntity.setFecha(localDate.format(formatter));
-
-            topicoRepository.save(topicoEntity);
-
-            return new ResponseEntity<>("El topico se actualizo correctamente", HttpStatus.OK);
+        if (topico == null) {
+            return new ResponseEntity<>("El tópico no se encontró", HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>("El topico no se encontro", HttpStatus.NOT_FOUND);
+        topico.actualizar(topicoActualizarDTO);
+
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        topico.setFecha(localDate.format(formatter));
+
+        this.topicoRepository.save(topico);
+
+        return new ResponseEntity<>("El tópico se actualizó correctamente", HttpStatus.OK);
     }
 
     @PutMapping("/respuestas-{id}-actualizar")
     @Transactional
     public ResponseEntity<String> actualizarRespuesta(@PathVariable Long id,
-                                                                @RequestBody RespuestasActualizarDTO respuestasActualizarDTO){
-        Optional<RespuestasEntity> optionalRespuesta = respuestaRepository.findById(id);
+                                                      @RequestBody RespuestasActualizarDTO respuestasActualizarDTO) {
 
-        if (optionalRespuesta.isPresent()) {
-            RespuestasEntity respuestasEntity = optionalRespuesta.get();
-            respuestasEntity.actualizar(respuestasActualizarDTO);
+        RespuestasEntity respuesta = this.obtenerUsuario.obtenerRespuesta(id);
 
-            LocalDate localDate = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-            respuestasEntity.setFecha(localDate.format(formatter));
-
-            respuestaRepository.save(optionalRespuesta.get());
-
-            return new ResponseEntity<>("La respuesta se actualizo correctamente", HttpStatus.OK);
+        if (respuesta == null) {
+            return new ResponseEntity<>("La respuesta no se encontró", HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>("La respuesta no se encontro", HttpStatus.NOT_FOUND);
+        respuesta.actualizar(respuestasActualizarDTO);
+
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        respuesta.setFecha(localDate.format(formatter));
+
+        this.respuestaRepository.save(respuesta);
+
+        return new ResponseEntity<>("El tópico se actualizó correctamente", HttpStatus.OK);
     }
+
 }

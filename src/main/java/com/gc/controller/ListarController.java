@@ -1,26 +1,14 @@
 package com.gc.controller;
 
-import com.gc.domain.respuestas.RespuestaDTO;
-import com.gc.domain.respuestas.RespuestaListadoDTO;
-import com.gc.domain.respuestas.RespuestaRepository;
-import com.gc.domain.respuestas.RespuestasEntity;
-import com.gc.domain.topico.TopicoDTO;
-import com.gc.domain.topico.TopicoEntity;
-import com.gc.domain.topico.TopicoListadoDTO;
-import com.gc.domain.topico.TopicoRepository;
-import com.gc.domain.usuario.UsuarioDTO;
-import com.gc.domain.usuario.UsuarioEntity;
-import com.gc.domain.usuario.UsuarioListarDTO;
-import com.gc.domain.usuario.UsuarioRepository;
+import com.gc.domain.respuestas.*;
+import com.gc.domain.topico.*;
+import com.gc.domain.usuario.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +16,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/foro")
 @SecurityRequirement(name = "bearer-key")
+@Tag(name = "3. Listar", description = "listar usuario, topico y/o respuesta")
 public class ListarController {
 
     @Autowired

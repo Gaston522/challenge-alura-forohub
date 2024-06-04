@@ -1,6 +1,5 @@
 package com.gc.domain.respuestas;
 
-import com.gc.domain.topico.TopicoActualizarDTO;
 import com.gc.domain.topico.TopicoEntity;
 import com.gc.domain.usuario.UsuarioEntity;
 import jakarta.persistence.*;

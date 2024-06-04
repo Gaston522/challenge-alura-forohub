@@ -1,7 +1,6 @@
 package com.gc.domain.usuario;
 
 import com.gc.domain.respuestas.RespuestasEntity;
-import com.gc.domain.topico.TopicoActualizarDTO;
 import com.gc.domain.topico.TopicoEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -94,9 +93,9 @@ public class UsuarioEntity implements UserDetails {
     }
 
     public void actualizar(UsuarioActualizarDTO actualizarDTO){
-        if(actualizarDTO.nombre() != null) this.setNombre(actualizarDTO.nombre());
-        if(actualizarDTO.clave() != null) this.setClave(actualizarDTO.clave());
-        if(actualizarDTO.curso() != null) this.setCurso(actualizarDTO.curso());
+        if(actualizarDTO.nombre() != null && !actualizarDTO.nombre().equals("")) this.setNombre(actualizarDTO.nombre());
+        if(actualizarDTO.clave() != null && !actualizarDTO.clave().equals("")) this.setClave(actualizarDTO.clave());
+        if(actualizarDTO.curso() != null && !actualizarDTO.curso().equals("")) this.setCurso(actualizarDTO.curso());
     }
 
     @Override

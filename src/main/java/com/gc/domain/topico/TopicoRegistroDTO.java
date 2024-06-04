@@ -1,6 +1,5 @@
 package com.gc.domain.topico;
 
-import com.gc.domain.usuario.UsuarioEntity;
 import jakarta.validation.constraints.NotBlank;
 
 public record TopicoRegistroDTO(
@@ -9,15 +8,12 @@ public record TopicoRegistroDTO(
         @NotBlank
         String mensaje,
         @NotBlank
-        String estatus,
-        @NotBlank
-        String usuario
+        String estatus
         ) {
 
         public TopicoRegistroDTO(TopicoDTO tDto) {
                 this(tDto.titulo(),
                         tDto.mensaje(),
-                        tDto.estatus(),
-                        tDto.usuario().getNombre());
+                        tDto.estatus());
         }
 }

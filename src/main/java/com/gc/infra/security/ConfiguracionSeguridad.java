@@ -2,9 +2,7 @@ package com.gc.infra.security;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -31,7 +29,7 @@ public class ConfiguracionSeguridad {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeRequests()
-                .requestMatchers(HttpMethod.POST, "/foro/login", "foro/registrar/usuario")
+                .requestMatchers(HttpMethod.POST, "/foro/login", "foro/registrar-usuario")
                 .permitAll()
                 .requestMatchers("swagger-ui.html", "/v3/api-docs/**", "swagger-ui/**")
                 .permitAll()

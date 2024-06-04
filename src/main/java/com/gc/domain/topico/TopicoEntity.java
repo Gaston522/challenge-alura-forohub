@@ -90,9 +90,9 @@ public class TopicoEntity {
     }
 
     public void actualizar(TopicoActualizarDTO topicoActualizarDTO){
-        if(topicoActualizarDTO.titulo() != null) this.setTitulo(topicoActualizarDTO.titulo());
-        if(topicoActualizarDTO.mensaje() != null) this.setMensaje(topicoActualizarDTO.mensaje());
-        if(topicoActualizarDTO.estatus() != null) this.setEstatus(topicoActualizarDTO.estatus());
+        if(topicoActualizarDTO.titulo() != null || !topicoActualizarDTO.titulo().equals("")) this.setTitulo(topicoActualizarDTO.titulo());
+        if(topicoActualizarDTO.mensaje() != null || !topicoActualizarDTO.mensaje().equals("")) this.setMensaje(topicoActualizarDTO.mensaje());
+        if(topicoActualizarDTO.estatus() != null || !topicoActualizarDTO.estatus().equals("")) this.setEstatus(topicoActualizarDTO.estatus());
     }
 
     public void agregarRespuesta(RespuestasEntity r){

@@ -1,8 +1,6 @@
 package com.gc.domain.topico;
 
 import com.gc.domain.respuestas.RespuestaListadoDTO;
-import com.gc.domain.respuestas.RespuestasEntity;
-
 import java.util.List;
 
 public record TopicoListadoDTO(
